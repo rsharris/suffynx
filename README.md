@@ -2,7 +2,7 @@
 Support scripts for "Retrovirus insertion site analysis of LGL leukemia patient
 genomes"
 
-#dependencies
+# Dependencies
 
 * genodsp, which can be found at https://github.com/rsharris/genodsp
 
