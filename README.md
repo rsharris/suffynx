@@ -39,6 +39,25 @@ the ".py" extensions. For example
 ```bash  
     cd my_exe_path
     ln -s some_path/suffynx/chrom_avg/close_intervals.py close_intervals
+    ln -s some_path/suffynx/chrom_avg/collect_tags.py collect_tags
+    ln -s some_path/suffynx/chrom_avg/create_script_call_insertions_discordant.py create_script_call_insertions_discordant
+    ln -s some_path/suffynx/chrom_avg/create_script_depth.py create_script_depth
+    ln -s some_path/suffynx/chrom_avg/create_script_discordant_mates_dense.py create_script_discordant_mates_dense
+    ln -s some_path/suffynx/chrom_avg/create_script_insert_depth.py create_script_insert_depth
+    ln -s some_path/suffynx/chrom_avg/create_script_insert_depth_dense.py create_script_insert_depth_dense
+    ln -s some_path/suffynx/chrom_avg/create_script_insert_depth_sparse.py create_script_insert_depth_sparse
+    ln -s some_path/suffynx/chrom_avg/create_script_insert_length.py create_script_insert_length
+    ln -s some_path/suffynx/chrom_avg/create_script_insert_length_sparse.py create_script_insert_length_sparse
+    ln -s some_path/suffynx/chrom_avg/create_script_insert_length_sparse_or_normal_inserts_sparse.py create_script_insert_length_sparse_or_normal_inserts_sparse
+    ln -s some_path/suffynx/chrom_avg/create_script_short_or_discordant.py create_script_short_or_discordant
+    ln -s some_path/suffynx/chrom_avg/fill_genomic_interval_gaps.py fill_genomic_interval_gaps
+    ln -s some_path/suffynx/chrom_avg/filtered_sam_to_intervals.py filtered_sam_to_intervals
+    ln -s some_path/suffynx/chrom_avg/intervals_to_ucsc_catalog.py intervals_to_ucsc_catalog
+    ln -s some_path/suffynx/chrom_avg/keep_first.py keep_first
+    ln -s some_path/suffynx/chrom_avg/make_bigwig_info.py make_bigwig_info
+    ln -s some_path/suffynx/chrom_avg/make_bwa_jobs.py make_bwa_jobs
+    ln -s some_path/suffynx/chrom_avg/proximal_feature_intervals.py proximal_feature_intervals
+    ln -s some_path/suffynx/chrom_avg/sam_reader.py sam_reader
 ```
 
 # Tutorial
