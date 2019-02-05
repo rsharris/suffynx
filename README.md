@@ -60,9 +60,30 @@ the ".py" extensions. For example
     ln -s some_path/suffynx/chrom_avg/sam_reader.py sam_reader
 ```
 
-# Tutorial
+# Pipeline Tutorial
 
-(to be written soon)
+(to be completed soon)
 
+……… inputs
+……… reads, alignments
+……… directory layout alignments, data, tracks, jobs
+
+Create the script that will compute the average mate pair insert length signal
+track.
+
+```bash  
+    suffynx_path="some_path/suffynx"
+    create_script_insert_length \
+          --control=${suffynx_path}/data/control.dat \
+          --init=shebang:bash \
+          --base="`pwd`" \
+          SAMPLE_ID \
+          --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+          --namesorted \
+          --chroms={base}/data/hg19.chrom_lengths \
+          --track={base}/tracks/{run}.insert_length \
+          --gzip \
+      > jobs/SAMPLE_ID.insert_length.sh
+```
 
 Feb/2019, Bob Harris (rsharris *at* bx *dot* psu *dot* edu)
