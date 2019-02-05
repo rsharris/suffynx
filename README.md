@@ -67,14 +67,14 @@ the ".py" extensions. For example
 ……… inputs
 ……… reads, alignments
 ……… directory layout alignments, data, tracks, jobs
+……… copy data/control.dat
 
 Create the script that will compute the average mate pair insert length signal
 track.
 
 ```bash  
-    suffynx_path="some_path/suffynx"
     create_script_insert_length \
-          --control=${suffynx_path}/data/control.dat \
+          --control=data/control.dat \
           --init=shebang:bash \
           --base="`pwd`" \
           SAMPLE_ID \
