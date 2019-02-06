@@ -5,6 +5,7 @@ genomes"
 # Dependencies
 
 * genodsp, which can be found at https://github.com/rsharris/genodsp
+* bwa
 
 # Installation
 
