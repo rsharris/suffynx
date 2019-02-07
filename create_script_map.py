@@ -208,16 +208,16 @@ def main():
 	if (doQualityFiltering):
 		commands =  []
 
-		command  =  ["time samtools view -h alignments/%s" % qfBamInFilename]
+		command  =  ["time samtools view -h %s" % qfBamInFilename]
 		commands += [command]
 
 		command   = ["filtered_sam_to_intervals"]
 		if (doNameSorted): command += ["--namesorted"]
 		command  += ["--prohibit:\"(CIGAR == *)\""]
 		command  += ["--require:\" (RNEXT == =)\""]
-		command  += ["--require:\" (MAPCLIP >= RLEN*\${clipThreshold})\""]
+		command  += ["--require:\" (MAPCLIP >= RLEN*${clipThreshold})\""]
 		command  += ["--require:\" (MINCLIP <= 5)\""]
-		command  += ["--require:\" (MAPQ >= \${mapQThreshold})\""]
+		command  += ["--require:\" (MAPQ >= ${mapQThreshold})\""]
 		command  += ["--justsam"]
 		command  += ["--progress=2M --progress=output:2M"]
 		commands += [command]
@@ -225,7 +225,7 @@ def main():
 		command  =  ["samtools view -bS -"]
 		commands += [command]
 
-		command  =  ["> alignments/%s" % qfBamOutFilename]
+		command  =  ["> %s" % qfBamOutFilename]
 		commands += [command]
 
 		print
