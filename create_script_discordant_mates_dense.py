@@ -255,9 +255,10 @@ def main():
 		     % (lineNumber,line)
 
 		(name,_,val) = fields[:3]
-		if (name == "discordant_mates_dense.minLength." + runName): minLength        = int(val)
-		if (name == "discordant_mates_dense.density"):              densityThreshold = val
-		if (name == "discordant_mates_dense.samplingStep"):         samplingStep     = int(val)
+		if (name == "discordant_mates_dense.minLength." + runName):                minLength        = int(val)
+		if (name == "discordant_mates_dense.minLength.*") and (minLength == None): minLength        = int(val)
+		if (name == "discordant_mates_dense.density"):                             densityThreshold = val
+		if (name == "discordant_mates_dense.samplingStep"):                        samplingStep     = int(val)
 
 	f.close()
 

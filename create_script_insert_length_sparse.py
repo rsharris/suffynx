@@ -279,13 +279,14 @@ def main():
 		     % (lineNumber,line)
 
 		(name,_,val) = fields[:3]
-		if (name == "avgInsertLen." + runName):           avgInsertLen     = int(val)
-		if (name == "insert_length_sparse.maskLevel"):    maskLevel        = val
-		if (name == "insert_length_sparse.windowLength"): windowLength     = int(val)
-		if (name == "insert_length_sparse.minLength"):    minLength        = int(val)
-		if (name == "insert_length_sparse.density"):      densityThreshold = val
-		if (name == "insert_length_sparse.densityClip"):  densityClip      = val
-		if (name == "insert_length_sparse.samplingStep"): samplingStep     = int(val)
+		if (name == "avgInsertLen." + runName):                   avgInsertLen     = int(val)
+		if (name == "avgInsertLen.*") and (avgInsertLen == None): avgInsertLen     = int(val)
+		if (name == "insert_length_sparse.maskLevel"):            maskLevel        = val
+		if (name == "insert_length_sparse.windowLength"):         windowLength     = int(val)
+		if (name == "insert_length_sparse.minLength"):            minLength        = int(val)
+		if (name == "insert_length_sparse.density"):              densityThreshold = val
+		if (name == "insert_length_sparse.densityClip"):          densityClip      = val
+		if (name == "insert_length_sparse.samplingStep"):         samplingStep     = int(val)
 
 	f.close()
 

@@ -288,12 +288,14 @@ def main():
 		     % (lineNumber,line)
 
 		(name,_,val) = fields[:3]
-		if (name == "avgInsertLen." + runName):         avgInsertLen     = int(val)
-		if (name == "stdevInsert."  + runName):         stdevInsert      = int(val)
-		if (name == "insert_depth_dense.minLength"):    minLength        = int(val)
-		if (name == "insert_depth_dense.density"):      densityThreshold = val
-		if (name == "insert_depth_dense.densityClip"):  densityClip      = val
-		if (name == "insert_depth_dense.samplingStep"): samplingStep     = int(val)
+		if (name == "avgInsertLen." + runName):                   avgInsertLen     = int(val)
+		if (name == "avgInsertLen.*") and (avgInsertLen == None): avgInsertLen     = int(val)
+		if (name == "stdevInsert."  + runName):                   stdevInsert      = int(val)
+		if (name == "stdevInsert.*") and (stdevInsert == None):   stdevInsert      = int(val)
+		if (name == "insert_depth_dense.minLength"):              minLength        = int(val)
+		if (name == "insert_depth_dense.density"):                densityThreshold = val
+		if (name == "insert_depth_dense.densityClip"):            densityClip      = val
+		if (name == "insert_depth_dense.samplingStep"):           samplingStep     = int(val)
 
 	f.close()
 

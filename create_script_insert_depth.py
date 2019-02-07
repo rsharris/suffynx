@@ -262,10 +262,14 @@ def main():
 		     % (lineNumber,line)
 
 		(name,_,val) = fields[:3]
-		if (name == "avgInsertLen." + runName): avgInsertLen = int(val)
-		if (name == "stdevInsert."  + runName): stdevInsert  = int(val)
-		if (name == "minInsertLen." + runName): minInsertLen = int(val)
-		if (name == "maxInsertLen." + runName): maxInsertLen = int(val)
+		if (name == "avgInsertLen." + runName):                   avgInsertLen = int(val)
+		if (name == "avgInsertLen.*") and (avgInsertLen == None): avgInsertLen = int(val)
+		if (name == "stdevInsert."  + runName):                   stdevInsert  = int(val)
+		if (name == "stdevInsert.*") and (stdevInsert == None):   stdevInsert  = int(val)
+		if (name == "minInsertLen." + runName):                   minInsertLen = int(val)
+		if (name == "minInsertLen.*") and (minInsertLen == None): minInsertLen = int(val)
+		if (name == "maxInsertLen." + runName):                   maxInsertLen = int(val)
+		if (name == "maxInsertLen.*") and (maxInsertLen == None): maxInsertLen = int(val)
 
 	f.close()
 
