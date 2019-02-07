@@ -24,6 +24,7 @@ usage: create_script_map [options] > map.sh
                              this looks like this:
                                {base}/alignments/{run}
   --namesorted               create a name sorted bam file too
+  --qualityfiltered          create a quality filtered bam file too
   --temp=<filename>          path to place to store temporary files
                              (default is {base}/temp/{run}.temp)
   --initialize=<text>        (cumulative) shell command to add to job beginning
@@ -42,15 +43,16 @@ def main():
 
 	# parse args
 
-	runName          = None
-	basePath         = None
-	refFilename      = None
-	readsFilename    = None
-	bamFilename      = None
-	tempFilename     = None
-	doNameSorted     = False
-	bashInitializers = ["set -eu"]
-	debug            = []
+	runName            = None
+	basePath           = None
+	refFilename        = None
+	readsFilename      = None
+	bamFilename        = None
+	tempFilename       = None
+	doNameSorted       = False
+	doQualityFiltering = False
+	bashInitializers   = ["set -eu"]
+	debug              = []
 
 	for arg in argv[1:]:
 		if ("=" in arg):
@@ -66,6 +68,8 @@ def main():
 			bamFilename = argVal
 		elif (arg == "--namesorted"):
 			doNameSorted = True
+		elif (arg == "--qualityfiltered"):
+			doQualityFiltering = True
 		elif (arg.startswith("--temp=")):
 			tempFilename = argVal
 		elif (arg.startswith("--initialize=")) or (arg.startswith("--init=")):
@@ -143,6 +147,14 @@ def main():
 	if (doNameSorted):
 		print "echo \"will write name-sorted alignments to %s\"" % (bamFilename + ".name_sorted.bam")
 
+	if (doQualityFiltering):
+		qfBamInFilename  = bamFilename + ".bam"
+		qfBamOutFilename = "%s.ql_filtered.bam" % bamFilename
+		if (doNameSorted):
+			qfBamInFilename  = "%s.name_sorted.bam" % bamFilename
+			qfBamOutFilename = "%s.ql_filtered.name_sorted.bam" % bamFilename
+		print "echo \"will write quality-filtered alignments to %s\"" % qfBamOutFilename
+
 	# write command(s) to map the reads
 
 	commands =  []
@@ -189,6 +201,38 @@ def main():
 		print
 		print "echo \"=== name-sorting alignments ===\""
 		print
+		print commands_to_pipeline(commands)
+
+	# write command(s) to quality-filter the alignments
+
+	if (doQualityFiltering):
+		commands =  []
+
+		command  =  ["time samtools view -h alignments/%s" % qfBamInFilename]
+		commands += [command]
+
+		command   = ["filtered_sam_to_intervals"]
+		if (doNameSorted): command += ["--namesorted"]
+		command  += ["--prohibit:\"(CIGAR == *)\""]
+		command  += ["--require:\" (RNEXT == =)\""]
+		command  += ["--require:\" (MAPCLIP >= RLEN*\${clipThreshold})\""]
+		command  += ["--require:\" (MINCLIP <= 5)\""]
+		command  += ["--require:\" (MAPQ >= \${mapQThreshold})\""]
+		command  += ["--justsam"]
+		command  += ["--progress=2M --progress=output:2M"]
+		commands += [command]
+
+		command  =  ["samtools view -bS -"]
+		commands += [command]
+
+		command  =  ["> alignments/%s" % qfBamOutFilename]
+		commands += [command]
+
+		print
+		print "echo \"=== quality-filtering alignments ===\""
+		print
+		print "mapQThreshold=40"
+		print "clipThreshold=0.40"
 		print commands_to_pipeline(commands)
 
 	# write command(s) to clean up
