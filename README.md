@@ -80,19 +80,19 @@ and a pipeline control file. You can arrange these files any way you like, but
 in the following example we assume that we have a single working directory with
 the following subdirectories
 
-	* reads --- this contains two fastq files for paired end reads, and two for mate pair reads
+* reads --- this contains two fastq files for paired end reads, and two for mate pair reads
 
-	* genomes --- this contains the reference fasta file, the bwa index, a chromosome lengths file, and any blacklist interval files
+* genomes --- this contains the reference fasta file, the bwa index, a chromosome lengths file, and any blacklist interval files
 
-	* data --- this contains the pipeline control file
+* data --- this contains the pipeline control file
 
-	* jobs --- the job scripts will be created here
+* jobs --- the job scripts will be created here
 
-	* alignments --- read-vs-reference alignments will be written here
+* alignments --- read-vs-reference alignments will be written here
 
-	* tracks --- track files will be created here
+* tracks --- track files will be created here
 
-	* temp --- temporary files will be created here
+* temp --- temporary files will be created here
 
 You can arrange 
 
