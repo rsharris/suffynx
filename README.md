@@ -75,22 +75,24 @@ describes a value for each interval of the reference genome. There's a python
 script for each stage, which will create a job script that will compute the
 track for that stage.  Job scripts are bash shell scripts.
 
-The inputs to the process are a set of reads for the sample, a reference
-genome and a control file. You can arrange these files any way you like, but
-in the following example we assume that we have a single working directory
-with the following subdirectories
+The inputs to the process are a set of reads for the sample, a reference genome
+and a pipeline control file. You can arrange these files any way you like, but
+in the following example we assume that we have a single working directory with
+the following subdirectories
 
-	* reads
+	* reads -- this contains two fastq files for paired end reads, and two for mate pair reads
 
-	* data
+	* genomes -- this contains the reference fasta file, the bwa index, a chromosome lengths file, and any blacklist interval files
 
-	* jobs
+	* data -- this contains the pipeline control file
 
-	* alignments
+	* jobs -- the job scripts will be created here
 
-	* tracks
+	* alignments -- read-vs-reference alignments will be written here
 
-	* temp
+	* tracks -- track files will be created here
+
+	* temp -- temporary files will be created here
 
 You can arrange 
 
