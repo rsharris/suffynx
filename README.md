@@ -80,42 +80,237 @@ and a pipeline control file. You can arrange these files any way you like, but
 in the following example we assume that we have a single working directory with
 the following subdirectories
 
-* reads -- this contains two fastq files for paired end reads, and two for mate pair reads
+* reads: This contains two fastq files for each sequencing run; usually this
+will be one run for paired end and another run for mate pair.
 
-* genomes -- this contains the reference fasta file, the bwa index, a chromosome lengths file, and any blacklist interval files
+* genomes: This contains the reference fasta file, the bwa index, a chromosome
+lengths file, and any blacklist interval files.
 
-* data -- this contains the pipeline control file
+* data: This contains the pipeline control file.
 
-* jobs -- the job scripts will be created here
+* jobs: The job scripts will be created here.
 
-* alignments -- read-vs-reference alignments will be written here
+* alignments: Read-vs-reference alignments will be written here.
 
-* tracks -- track files will be created here
+* tracks: Track files will be created here.
 
-* temp -- temporary files will be created here
+* temp: Temporary files will be created here.
 
-You can arrange 
+In this example, the genome is named "reference", and the sample is named
+"ZEB".
 
-……… inputs
-……… reads, alignments
-……… directory layout alignments, data, tracks, jobs
-……… copy data/control.dat
+……… copy control.dat from the repo
 
-Create the script that will compute the average mate pair insert length signal
-track.
+
 
 ```bash  
-    create_script_insert_length \
-          --control=data/control.dat \
-          --init=shebang:bash \
-          --base="`pwd`" \
-          SAMPLE_ID \
-          --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
-          --namesorted \
-          --chroms={base}/data/hg19.chrom_lengths \
-          --track={base}/tracks/{run}.insert_length \
-          --gzip \
-      > jobs/SAMPLE_ID.insert_length.sh
+    :> data/pe_run_names
+    echo "SIM_101_101_PE" >> data/pe_run_names
+
+    :> data/mp_run_names
+    echo "SIM_150_150_MP" >> data/mp_run_names
 ```
+
+Create the scripts that will map the reads to the reference.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_map \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --ref="  {base}/genomes/reference.fa" \
+                --reads="{base}/reads/{run}.infected_reads.{mate}.fastq" \
+                --bam="  {base}/alignments/{run}" \
+                --namesorted \
+                --qualityfiltered \
+            > jobs/${run}.map.sh
+          chmod +x jobs/${run}.map.sh
+          done
+```
+
+Create the scripts that will compute the average mate pair insert length signal
+tracks.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_insert_length \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+                --namesorted \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --track={base}/tracks/{run}.insert_length \
+                --gzip \
+            > jobs/${run}.insert_length.sh
+          chmod +x jobs/${run}.insert_length.sh
+          done
+```
+
+Create the scripts that will compute the average mate pair insert length
+indicator tracks.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_insert_length_sparse \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --blacklist={base}/genomes/reference.Ns.dat \
+                --blacklist={base}/genomes/repeat_masker.reference.dat \
+                --input={base}/tracks/{run}.insert_length.gz \
+                --track={base}/tracks/{run}.insert_length.sparse \
+            > jobs/${run}.insert_length_sparse.sh
+          chmod +x jobs/${run}.insert_length_sparse.sh
+          done
+```
+
+Create the scripts that will compute the normal insert coverage depth signal
+tracks.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_insert_depth \
+                --class=normal \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+                --namesorted \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --track={base}/tracks/{run}.{kind}_inserts.depth \
+            > jobs/${run}.insert_depth.normal.sh
+          chmod +x jobs/${run}.insert_depth.normal.sh
+          done
+```
+
+Create the scripts that will compute the normal insert coverage depth
+indicator tracks.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_insert_depth_sparse \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --blacklist={base}/genomes/reference.Ns.dat \
+                --blacklist={base}/genomes/repeat_masker.reference.dat \
+                --input={base}/tracks/{run}.{kind}_inserts.depth \
+                --track={base}/tracks/{run}.{kind}_inserts.depth.sparse \
+            > jobs/${run}.insert_depth_sparse.sh
+          chmod +x jobs/${run}.insert_depth_sparse.sh
+          done
+```
+
+Create the scripts that will compute the short insert coverage depth signal
+tracks.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_insert_depth \
+                --class=short \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+                --namesorted \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --track={base}/tracks/{run}.{kind}_inserts.depth \
+            > jobs/${run}.insert_depth.short.sh
+          chmod +x jobs/${run}.insert_depth.short.sh
+          done
+```
+
+Create the scripts that will compute the short insert coverage depth
+indicator tracks.
+
+```bash  
+    cat data/pe_run_names data/mp_run_names \
+      | while read run ; do
+          create_script_insert_depth_dense \
+                --class=short \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --input={base}/tracks/{run}.{kind}_inserts.depth \
+                --track={base}/tracks/{run}.{kind}_inserts.depth.dense \
+            > jobs/${run}.insert_depth_dense.sh
+          chmod +x jobs/${run}.insert_depth_dense.sh
+          done
+```
+
+Create the scripts that will compute the mate pair discordant mates coverage
+depth signal tracks.
+
+```bash  
+???
+uses create_script_discordant_mates_dense on just the mp_run_names,
+but there's some pre-processing that has to happen first
+???
+```
+
+Create the scripts that will compute the mate pair discordant mates coverage
+depth indicator tracks.
+
+```bash  
+(Bob to add this)
+```
+
+Create the scripts that will compute the paired end clipped breakpoints signal
+tracks.
+
+```bash  
+    cat data/pe_run_names data/pe_run_names \
+      | while read run ; do
+          create_script_clipped_breakpoints \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+                --namesorted \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --track={base}/tracks/{run}.clipped_breakpoints \
+            > jobs/${run}.clipped_breakpoints.sh
+          chmod +x jobs/${run}.clipped_breakpoints.sh
+          done
+```
+
+Create the scripts that will compute the paired end clipped breakpoints
+indicator tracks.
+
+```bash  
+    cat data/pe_run_names data/pe_run_names \
+      | while read run ; do
+          create_script_clipped_breakpoints_high \
+                --control=data/control.dat \
+                --init=shebang:bash \
+                --base="`pwd`" \
+                ${run} \
+                --chroms={base}/genomes/reference.chrom_lengths \
+                --input={base}/tracks/{run}.clipped_breakpoints \
+                --track={base}/tracks/{run}.clipped_breakpoints.high \
+            > jobs/${run}.clipped_breakpoints_high.sh
+          chmod +x jobs/${run}.clipped_breakpoints_high.sh
+          done
+```
+
+(Bob to add the combination track stuff)
 
 Feb/2019, Bob Harris (rsharris *at* bx *dot* psu *dot* edu)
