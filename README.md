@@ -37,6 +37,7 @@ For example
 
 For every python script, symlink it somewhere into your shell's $PATH, without
 the ".py" extensions. For example
+(NEED TO UPDATE THIS LIST)
 ```bash  
     cd my_exe_path
     ln -s some_path/suffynx/chrom_avg/close_intervals.py close_intervals
@@ -64,6 +65,28 @@ the ".py" extensions. For example
 # Pipeline Tutorial
 
 (to be completed soon)
+
+We use a two-layer job paradigm. For a given sample (i.e. reads from an
+individual) we first run a series of python programs to create job scripts.
+Then we run the job scripts.
+
+Generally each stage of the pipeline corresponds to a _track_, where a track
+describes a value for each interval of the reference genome. There's a python
+script for each stage, which will create a job script that will compute the
+track for that stage.  Job scripts are bash shell scripts.
+
+The inputs to the process are a set of reads for the sample, a reference
+genome and a control file. You can arrange these files any way you like, but
+in the following example we assume that we have a single working directory
+with the following subdirectories
+	* reads
+	* data
+	* jobs
+	* alignments
+	* tracks
+	* temp
+
+You can arrange 
 
 ……… inputs
 ……… reads, alignments
