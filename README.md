@@ -79,11 +79,17 @@ The inputs to the process are a set of reads for the sample, a reference
 genome and a control file. You can arrange these files any way you like, but
 in the following example we assume that we have a single working directory
 with the following subdirectories
+
 	* reads
+
 	* data
+
 	* jobs
+
 	* alignments
+
 	* tracks
+
 	* temp
 
 You can arrange 
