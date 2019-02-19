@@ -262,18 +262,26 @@ cat data/pe_run_names data/mp_run_names \
 Create the scripts that will compute the mate pair discordant mates coverage
 depth signal tracks.
 
-```bash  
-???
-uses create_script_discordant_mates_dense on just the mp_run_names,
-but there's some pre-processing that has to happen first
-???
-```
+(see https://github.com/rsharris/suffynx/discordant_mates)
 
 Create the scripts that will compute the mate pair discordant mates coverage
 depth indicator tracks.
 
 ```bash  
-(Bob to add this)
+cat data/pe_run_names data/mp_run_names \
+  | while read run ; do
+      create_script_discordant_mates_dense.py \
+            --class=short \
+            --control=data/control.dat \
+            --init=shebang:bash \
+            --base="`pwd`" \
+            ${run} \
+            --chroms={base}/genomes/reference.chrom_lengths \
+            --input={base}/tracks/{run}.rmdup.bedgraph \
+            --track={base}/tracks/{run}.discordant_mates.dense \
+        > jobs/${run}.discordant_mates_dense.sh
+      chmod +x jobs/${run}.discordant_mates_dense.sh
+      done
 ```
 
 Create the scripts that will compute the paired end clipped breakpoints signal
