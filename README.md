@@ -108,7 +108,7 @@ repository and modified if necessary.
 There are two blacklist files, genomes/reference.Ns.dat and
 genomes/repeat_masker.reference.dat.
 
-Create the scripts that will map the reads to the reference.
+## Create the scripts that will map the reads to the reference.
 
 ```bash  
 create_script_map \
@@ -124,8 +124,10 @@ create_script_map \
 chmod +x jobs/ZEB_150_150_MP.map.sh
 ```
 
-Create the scripts that will compute the average mate pair insert length signal
-and indicator tracks. This is called "Track 1" in supplementary methods step 2.
+## Create the scripts that will compute the average mate pair insert length signal
+and indicator tracks.
+
+This is called "Track 1" in supplementary methods step 2.
 
 ```bash  
 create_script_insert_length \
