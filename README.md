@@ -74,7 +74,7 @@ Then we run the job scripts.
 Generally each stage of the pipeline corresponds to a _track_, where a track
 describes a value for each interval of the reference genome. There's a python
 script for each stage, which will create a job script that will compute the
-track for that stage.  Job scripts are bash shell scripts.
+track for that stage. Job scripts are bash shell scripts.
 
 The inputs to the process are a set of reads for the sample, a reference genome
 and a pipeline control file. You can arrange these files any way you like, but
@@ -108,15 +108,6 @@ repository and modified if necessary.
 There are two blacklist files, genomes/reference.Ns.dat and
 genomes/repeat_masker.reference.dat.
 
-
-```bash  
-:> data/pe_run_names
-echo "ZEB_101_101_PE" >> data/pe_run_names
-
-:> data/mp_run_names
-echo "ZEB_150_150_MP" >> data/mp_run_names
-```
-
 Create the scripts that will map the reads to the reference.
 
 ```bash  
@@ -134,7 +125,7 @@ chmod +x jobs/ZEB_150_150_MP.map.sh
 ```
 
 Create the scripts that will compute the average mate pair insert length signal
-tracks.
+and indicator tracks. This is called "Track 1" in supplementary methods step 2.
 
 ```bash  
 create_script_insert_length \
@@ -151,9 +142,6 @@ create_script_insert_length \
 chmod +x jobs/ZEB_150_150_MP.insert_length.sh
 ```
 
-Create the scripts that will compute the average mate pair insert length
-indicator tracks.
-
 ```bash  
 create_script_insert_length_sparse \
       --control=data/control.dat \
@@ -169,44 +157,9 @@ create_script_insert_length_sparse \
 chmod +x jobs/ZEB_150_150_MP.insert_length_sparse.sh
 ```
 
-Create the scripts that will compute the normal insert coverage depth signal
-tracks.
-
-```bash  
-create_script_insert_depth \
-      --class=normal \
-      --control=data/control.dat \
-      --init=shebang:bash \
-      --base="`pwd`" \
-      ZEB_150_150_MP \
-      --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
-      --namesorted \
-      --chroms={base}/genomes/reference.chrom_lengths \
-      --track={base}/tracks/{run}.{kind}_inserts.depth \
-  > jobs/ZEB_150_150_MP.insert_depth.normal.sh
-chmod +x jobs/ZEB_150_150_MP.insert_depth.normal.sh
-```
-
-Create the scripts that will compute the normal insert coverage depth
-indicator tracks.
-
-```bash  
-create_script_insert_depth_sparse \
-      --control=data/control.dat \
-      --init=shebang:bash \
-      --base="`pwd`" \
-      ZEB_150_150_MP \
-      --chroms={base}/genomes/reference.chrom_lengths \
-      --blacklist={base}/genomes/reference.Ns.dat \
-      --blacklist={base}/genomes/repeat_masker.reference.dat \
-      --input={base}/tracks/{run}.{kind}_inserts.depth \
-      --track={base}/tracks/{run}.{kind}_inserts.depth.sparse \
-  > jobs/ZEB_150_150_MP.insert_depth_sparse.sh
-chmod +x jobs/ZEB_150_150_MP.insert_depth_sparse.sh
-```
-
-Create the scripts that will compute the short insert coverage depth signal
-tracks.
+Create the scripts that will compute the mate pair short and normal insert
+coverage depth signal and indicator tracks. These are called "Tracks 2 and 3"
+in supplementary methods step 3.
 
 ```bash  
 create_script_insert_depth \
@@ -223,9 +176,6 @@ create_script_insert_depth \
 chmod +x jobs/ZEB_150_150_MP.insert_depth.short.sh
 ```
 
-Create the scripts that will compute the short insert coverage depth
-indicator tracks.
-
 ```bash  
 create_script_insert_depth_dense \
       --class=short \
@@ -240,13 +190,42 @@ create_script_insert_depth_dense \
 chmod +x jobs/ZEB_150_150_MP.insert_depth_dense.sh
 ```
 
-Create the scripts that will compute the mate pair discordant mates coverage
-depth signal tracks.
+```bash  
+create_script_insert_depth \
+      --class=normal \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      ZEB_150_150_MP \
+      --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+      --namesorted \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --track={base}/tracks/{run}.{kind}_inserts.depth \
+  > jobs/ZEB_150_150_MP.insert_depth.normal.sh
+chmod +x jobs/ZEB_150_150_MP.insert_depth.normal.sh
+```
 
-(see https://github.com/rsharris/suffynx/tree/master/discordant_mates)
+```bash  
+create_script_insert_depth_sparse \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      ZEB_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --blacklist={base}/genomes/reference.Ns.dat \
+      --blacklist={base}/genomes/repeat_masker.reference.dat \
+      --input={base}/tracks/{run}.{kind}_inserts.depth \
+      --track={base}/tracks/{run}.{kind}_inserts.depth.sparse \
+  > jobs/ZEB_150_150_MP.insert_depth_sparse.sh
+chmod +x jobs/ZEB_150_150_MP.insert_depth_sparse.sh
+```
 
 Create the scripts that will compute the mate pair discordant mates coverage
-depth indicator tracks.
+depth signal and indicator tracks. This is called "Track 4" in supplementary
+methods step 4.
+
+See https://github.com/rsharris/suffynx/tree/master/discordant_mates for
+creation of the signal track.
 
 ```bash  
 create_script_discordant_mates_dense.py \
@@ -263,7 +242,7 @@ chmod +x jobs/ZEB_150_150_MP.discordant_mates_dense.sh
 ```
 
 Create the scripts that will compute the paired end clipped breakpoints signal
-tracks.
+and indicator tracks. This is called "Track 5" in supplementary methods step 5.
 
 ```bash  
 create_script_clipped_breakpoints \
@@ -279,9 +258,6 @@ create_script_clipped_breakpoints \
 chmod +x jobs/ZEB_101_101_PE.clipped_breakpoints.sh
 ```
 
-Create the scripts that will compute the paired end clipped breakpoints
-indicator tracks.
-
 ```bash  
 create_script_clipped_breakpoints_high \
       --control=data/control.dat \
@@ -295,7 +271,49 @@ create_script_clipped_breakpoints_high \
 chmod +x jobs/ZEB_101_101_PE.clipped_breakpoints_high.sh
 ```
 
-(Bob to add the combination track stuff)
+Create the scripts that will combine tracks 1 thru 5 and call insertions, per
+supplementary methods step 6.
+
+```bash  
+programs/create_script_insert_length_sparse_or_normal_inserts_sparse.py \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      ZEB_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --input1={base}/tracks/{run}.insert_length.sparse \
+      --input2={base}/tracks/{run}.normal_inserts.depth.sparse \
+      --track={base}/tracks/{run}.insert_length_sparse_or_normal_inserts_sparse \
+  > jobs/ZEB_150_150_MP.track1_or_track2.sh
+chmod +x jobs/ZEB_150_150_MP.track1_or_track2.sh
+```
+
+```bash  
+programs/create_script_short_or_discordant.py \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      ZEB_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --input1={base}/tracks/{run}.short_inserts.depth.dense \
+      --input2={base}/tracks/{run}.discordant_mates.dense \
+      --track={base}/tracks/{run}.short_or_discordant \
+  > jobs/ZEB_150_150_MP.track3_or_track4.sh
+chmod +x jobs/ZEB_150_150_MP.track3_or_track4.sh
+```
+
+```bash  
+    create_script_call_insertions_discordant.py \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      peRun=ZEB_101_101_PE
+      mpRun=ZEB_150_150_MP
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --input="{base}/tracks/{mprun}.insert_length_sparse_or_normal_inserts_sparse" \
+      --input="{base}/tracks/{mprun}.short_or_discordant" \
+      --track="{base}/tracks/{run}.called_insertions" \
+  > jobs/ZEB.called_insertions.sh
+chmod +x jobs/ZEB.called_insertions.sh
+```
 
 One all the jobs scripts have been created, they should be run, like this:
 ```bash  
@@ -309,6 +327,9 @@ One all the jobs scripts have been created, they should be run, like this:
 ./jobs/ZEB_150_150_MP.discordant_mates_dense.sh
 ./jobs/ZEB_101_101_PE.clipped_breakpoints.sh
 ./jobs/ZEB_101_101_PE.clipped_breakpoints_high.sh
+./jobs/ZEB_150_150_MP.track1_or_track2.sh
+./jobs/ZEB_150_150_MP.track3_or_track4.sh
+./jobs/ZEB.called_insertions.sh
 ```
 
 
