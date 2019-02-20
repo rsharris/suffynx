@@ -228,7 +228,7 @@ See https://github.com/rsharris/suffynx/tree/master/discordant_mates for
 creation of the signal track.
 
 ```bash  
-create_script_discordant_mates_dense.py \
+create_script_discordant_mates_dense \
       --class=short \
       --control=data/control.dat \
       --init=shebang:bash \
@@ -275,7 +275,7 @@ Create the scripts that will combine tracks 1 thru 5 and call insertions, per
 supplementary methods step 6.
 
 ```bash  
-programs/create_script_insert_length_sparse_or_normal_inserts_sparse.py \
+create_script_insert_length_sparse_or_normal_inserts_sparse \
       --init=shebang:bash \
       --base="`pwd`" \
       ZEB_150_150_MP \
@@ -288,7 +288,7 @@ chmod +x jobs/ZEB_150_150_MP.track1_or_track2.sh
 ```
 
 ```bash  
-programs/create_script_short_or_discordant.py \
+create_script_short_or_discordant \
       --init=shebang:bash \
       --base="`pwd`" \
       ZEB_150_150_MP \
@@ -301,7 +301,7 @@ chmod +x jobs/ZEB_150_150_MP.track3_or_track4.sh
 ```
 
 ```bash  
-    create_script_call_insertions_discordant.py \
+create_script_call_insertions_discordant \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
