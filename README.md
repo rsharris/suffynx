@@ -37,12 +37,13 @@ ln -s some_path/suffynx/encodachrom/encodachrom .
 
 For every python script, symlink it somewhere into your shell's $PATH, without
 the ".py" extensions. For example
-(NEED TO UPDATE THIS LIST)
 ```bash  
 cd my_exe_path
 ln -s some_path/suffynx/chrom_avg/close_intervals.py close_intervals
 ln -s some_path/suffynx/chrom_avg/collect_tags.py collect_tags
 ln -s some_path/suffynx/chrom_avg/create_script_call_insertions_discordant.py create_script_call_insertions_discordant
+ln -s some_path/suffynx/chrom_avg/create_script_clipped_breakpoints.py create_script_clipped_breakpoints
+ln -s some_path/suffynx/chrom_avg/create_script_clipped_breakpoints_high.py create_script_clipped_breakpoints_high
 ln -s some_path/suffynx/chrom_avg/create_script_depth.py create_script_depth
 ln -s some_path/suffynx/chrom_avg/create_script_discordant_mates_dense.py create_script_discordant_mates_dense
 ln -s some_path/suffynx/chrom_avg/create_script_insert_depth.py create_script_insert_depth
@@ -51,6 +52,7 @@ ln -s some_path/suffynx/chrom_avg/create_script_insert_depth_sparse.py create_sc
 ln -s some_path/suffynx/chrom_avg/create_script_insert_length.py create_script_insert_length
 ln -s some_path/suffynx/chrom_avg/create_script_insert_length_sparse.py create_script_insert_length_sparse
 ln -s some_path/suffynx/chrom_avg/create_script_insert_length_sparse_or_normal_inserts_sparse.py create_script_insert_length_sparse_or_normal_inserts_sparse
+ln -s some_path/suffynx/chrom_avg/create_script_map.py create_script_map
 ln -s some_path/suffynx/chrom_avg/create_script_short_or_discordant.py create_script_short_or_discordant
 ln -s some_path/suffynx/chrom_avg/fill_genomic_interval_gaps.py fill_genomic_interval_gaps
 ln -s some_path/suffynx/chrom_avg/filtered_sam_to_intervals.py filtered_sam_to_intervals
@@ -60,11 +62,10 @@ ln -s some_path/suffynx/chrom_avg/make_bigwig_info.py make_bigwig_info
 ln -s some_path/suffynx/chrom_avg/make_bwa_jobs.py make_bwa_jobs
 ln -s some_path/suffynx/chrom_avg/proximal_feature_intervals.py proximal_feature_intervals
 ln -s some_path/suffynx/chrom_avg/sam_reader.py sam_reader
+ln -s some_path/suffynx/chrom_avg/today.py today
 ```
 
 # Pipeline Tutorial
-
-(to be completed soon)
 
 We use a two-layer job paradigm. For a given sample (i.e. reads from an
 individual) we first run a series of python programs to create job scripts.
@@ -118,211 +119,196 @@ echo "SIM_150_150_MP" >> data/mp_run_names
 Create the scripts that will map the reads to the reference.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_map \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --ref="  {base}/genomes/reference.fa" \
-            --reads="{base}/reads/{run}.infected_reads.{mate}.fastq" \
-            --bam="  {base}/alignments/{run}" \
-            --namesorted \
-            --qualityfiltered \
-        > jobs/${run}.map.sh
-      chmod +x jobs/${run}.map.sh
-      done
+create_script_map \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --ref="  {base}/genomes/reference.fa" \
+      --reads="{base}/reads/{run}.infected_reads.{mate}.fastq" \
+      --bam="  {base}/alignments/{run}" \
+      --namesorted \
+      --qualityfiltered \
+  > jobs/SIM_150_150_MP.map.sh
+chmod +x jobs/SIM_150_150_MP.map.sh
 ```
 
 Create the scripts that will compute the average mate pair insert length signal
 tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_insert_length \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
-            --namesorted \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --track={base}/tracks/{run}.insert_length \
-            --gzip \
-        > jobs/${run}.insert_length.sh
-      chmod +x jobs/${run}.insert_length.sh
-      done
+create_script_insert_length \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+      --namesorted \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --track={base}/tracks/{run}.insert_length \
+      --gzip \
+  > jobs/SIM_150_150_MP.insert_length.sh
+chmod +x jobs/SIM_150_150_MP.insert_length.sh
 ```
 
 Create the scripts that will compute the average mate pair insert length
 indicator tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_insert_length_sparse \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --blacklist={base}/genomes/reference.Ns.dat \
-            --blacklist={base}/genomes/repeat_masker.reference.dat \
-            --input={base}/tracks/{run}.insert_length.gz \
-            --track={base}/tracks/{run}.insert_length.sparse \
-        > jobs/${run}.insert_length_sparse.sh
-      chmod +x jobs/${run}.insert_length_sparse.sh
-      done
+create_script_insert_length_sparse \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --blacklist={base}/genomes/reference.Ns.dat \
+      --blacklist={base}/genomes/repeat_masker.reference.dat \
+      --input={base}/tracks/{run}.insert_length.gz \
+      --track={base}/tracks/{run}.insert_length.sparse \
+  > jobs/SIM_150_150_MP.insert_length_sparse.sh
+chmod +x jobs/SIM_150_150_MP.insert_length_sparse.sh
 ```
 
 Create the scripts that will compute the normal insert coverage depth signal
 tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_insert_depth \
-            --class=normal \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
-            --namesorted \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --track={base}/tracks/{run}.{kind}_inserts.depth \
-        > jobs/${run}.insert_depth.normal.sh
-      chmod +x jobs/${run}.insert_depth.normal.sh
-      done
+create_script_insert_depth \
+      --class=normal \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+      --namesorted \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --track={base}/tracks/{run}.{kind}_inserts.depth \
+  > jobs/SIM_150_150_MP.insert_depth.normal.sh
+chmod +x jobs/SIM_150_150_MP.insert_depth.normal.sh
 ```
 
 Create the scripts that will compute the normal insert coverage depth
 indicator tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_insert_depth_sparse \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --blacklist={base}/genomes/reference.Ns.dat \
-            --blacklist={base}/genomes/repeat_masker.reference.dat \
-            --input={base}/tracks/{run}.{kind}_inserts.depth \
-            --track={base}/tracks/{run}.{kind}_inserts.depth.sparse \
-        > jobs/${run}.insert_depth_sparse.sh
-      chmod +x jobs/${run}.insert_depth_sparse.sh
-      done
+create_script_insert_depth_sparse \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --blacklist={base}/genomes/reference.Ns.dat \
+      --blacklist={base}/genomes/repeat_masker.reference.dat \
+      --input={base}/tracks/{run}.{kind}_inserts.depth \
+      --track={base}/tracks/{run}.{kind}_inserts.depth.sparse \
+  > jobs/SIM_150_150_MP.insert_depth_sparse.sh
+chmod +x jobs/SIM_150_150_MP.insert_depth_sparse.sh
 ```
 
 Create the scripts that will compute the short insert coverage depth signal
 tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_insert_depth \
-            --class=short \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
-            --namesorted \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --track={base}/tracks/{run}.{kind}_inserts.depth \
-        > jobs/${run}.insert_depth.short.sh
-      chmod +x jobs/${run}.insert_depth.short.sh
-      done
+create_script_insert_depth \
+      --class=short \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+      --namesorted \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --track={base}/tracks/{run}.{kind}_inserts.depth \
+  > jobs/SIM_150_150_MP.insert_depth.short.sh
+chmod +x jobs/SIM_150_150_MP.insert_depth.short.sh
 ```
 
 Create the scripts that will compute the short insert coverage depth
 indicator tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_insert_depth_dense \
-            --class=short \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --input={base}/tracks/{run}.{kind}_inserts.depth \
-            --track={base}/tracks/{run}.{kind}_inserts.depth.dense \
-        > jobs/${run}.insert_depth_dense.sh
-      chmod +x jobs/${run}.insert_depth_dense.sh
-      done
+create_script_insert_depth_dense \
+      --class=short \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --input={base}/tracks/{run}.{kind}_inserts.depth \
+      --track={base}/tracks/{run}.{kind}_inserts.depth.dense \
+  > jobs/SIM_150_150_MP.insert_depth_dense.sh
+chmod +x jobs/SIM_150_150_MP.insert_depth_dense.sh
 ```
 
 Create the scripts that will compute the mate pair discordant mates coverage
 depth signal tracks.
 
-(see https://github.com/rsharris/suffynx/discordant_mates)
+(see https://github.com/rsharris/suffynx/tree/master/discordant_mates)
 
 Create the scripts that will compute the mate pair discordant mates coverage
 depth indicator tracks.
 
 ```bash  
-cat data/pe_run_names data/mp_run_names \
-  | while read run ; do
-      create_script_discordant_mates_dense.py \
-            --class=short \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --input={base}/tracks/{run}.rmdup.bedgraph \
-            --track={base}/tracks/{run}.discordant_mates.dense \
-        > jobs/${run}.discordant_mates_dense.sh
-      chmod +x jobs/${run}.discordant_mates_dense.sh
-      done
+create_script_discordant_mates_dense.py \
+      --class=short \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_150_150_MP \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --input={base}/tracks/{run}.rmdup.bedgraph \
+      --track={base}/tracks/{run}.discordant_mates.dense \
+  > jobs/SIM_150_150_MP.discordant_mates_dense.sh
+chmod +x jobs/SIM_150_150_MP.discordant_mates_dense.sh
 ```
 
 Create the scripts that will compute the paired end clipped breakpoints signal
 tracks.
 
 ```bash  
-cat data/pe_run_names data/pe_run_names \
-  | while read run ; do
-      create_script_clipped_breakpoints \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
-            --namesorted \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --track={base}/tracks/{run}.clipped_breakpoints \
-        > jobs/${run}.clipped_breakpoints.sh
-      chmod +x jobs/${run}.clipped_breakpoints.sh
-      done
+create_script_clipped_breakpoints \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_101_101_PE \
+      --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
+      --namesorted \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --track={base}/tracks/{run}.clipped_breakpoints \
+  > jobs/SIM_101_101_PE.clipped_breakpoints.sh
+chmod +x jobs/SIM_101_101_PE.clipped_breakpoints.sh
 ```
 
 Create the scripts that will compute the paired end clipped breakpoints
 indicator tracks.
 
 ```bash  
-cat data/pe_run_names data/pe_run_names \
-  | while read run ; do
-      create_script_clipped_breakpoints_high \
-            --control=data/control.dat \
-            --init=shebang:bash \
-            --base="`pwd`" \
-            ${run} \
-            --chroms={base}/genomes/reference.chrom_lengths \
-            --input={base}/tracks/{run}.clipped_breakpoints \
-            --track={base}/tracks/{run}.clipped_breakpoints.high \
-        > jobs/${run}.clipped_breakpoints_high.sh
-      chmod +x jobs/${run}.clipped_breakpoints_high.sh
-      done
+create_script_clipped_breakpoints_high \
+      --control=data/control.dat \
+      --init=shebang:bash \
+      --base="`pwd`" \
+      SIM_101_101_PE \
+      --chroms={base}/genomes/reference.chrom_lengths \
+      --input={base}/tracks/{run}.clipped_breakpoints \
+      --track={base}/tracks/{run}.clipped_breakpoints.high \
+  > jobs/SIM_101_101_PE.clipped_breakpoints_high.sh
+chmod +x jobs/SIM_101_101_PE.clipped_breakpoints_high.sh
 ```
 
 (Bob to add the combination track stuff)
+
+One all the jobs scripts have been created, they should be run, like this:
+```bash  
+./jobs/SIM_150_150_MP.map.sh
+./jobs/SIM_150_150_MP.insert_length.sh
+./jobs/SIM_150_150_MP.insert_length_sparse.sh
+./jobs/SIM_150_150_MP.insert_depth.normal.sh
+./jobs/SIM_150_150_MP.insert_depth_sparse.sh
+./jobs/SIM_150_150_MP.insert_depth.short.sh
+./jobs/SIM_150_150_MP.insert_depth_dense.sh
+./jobs/SIM_150_150_MP.discordant_mates_dense.sh
+./jobs/SIM_101_101_PE.clipped_breakpoints.sh
+./jobs/SIM_101_101_PE.clipped_breakpoints_high.sh
+```
+
 
 Feb/2019, Bob Harris (rsharris *at* bx *dot* psu *dot* edu)
