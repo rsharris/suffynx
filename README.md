@@ -228,6 +228,8 @@ This is called "Track 4" in supplementary methods step 4.
 See https://github.com/rsharris/suffynx/tree/master/discordant_mates for
 creation of the signal track.
 
+This creates the script that converts the signal track to an indicator track.
+
 ```bash  
 create_script_discordant_mates_dense \
       --class=short \
@@ -318,7 +320,10 @@ create_script_call_insertions_discordant \
 chmod +x jobs/ZEB.called_insertions.sh
 ```
 
+## Compute.
+
 One all the jobs scripts have been created, they should be run, like this:
+
 ```bash  
 ./jobs/ZEB_150_150_MP.map.sh
 ./jobs/ZEB_150_150_MP.insert_length.sh
