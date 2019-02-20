@@ -322,7 +322,7 @@ chmod +x jobs/ZEB.called_insertions.sh
 
 ## Compute.
 
-One all the jobs scripts have been created, they should be run, like this:
+Once all the jobs scripts have been created, they should be run, like this:
 
 ```bash  
 ./jobs/ZEB_150_150_MP.map.sh
