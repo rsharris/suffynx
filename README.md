@@ -82,7 +82,7 @@ in the following example we assume that we have a single working directory with
 the following subdirectories
 
 * reads: This contains two fastq files for each sequencing run; usually this
-will be one run for paired end and another run for mate pair.
+will be one run for mate pair and another run for paired end.
 
 * genomes: This contains the reference fasta file, the bwa index, a chromosome
 lengths file, and any blacklist interval files.
@@ -99,21 +99,22 @@ lengths file, and any blacklist interval files.
 
 In this example, the genome is named "reference", and the sample is named
 "ZEB".
-
-……… copy control.dat from the repo
-
-……… what are the bwa index files?
-
-……… in this example we have two blacklist files, named reference.Ns.dat and
-repeat_masker.reference.dat 
+We start with paired end reads files reads/ZEB_101_101_PE.1.fastq and
+reads/ZEB_101_101_PE.2.fastq,
+and mate pair reads files reads/ZEB_150_150_MP.1.fastq and
+reads/ZEB_150_150_MP.2.fastq.
+data/control.dat has been copied from the
+repository and modified if necessary.
+There are two blacklist files, genomes/reference.Ns.dat and
+genomes/repeat_masker.reference.dat.
 
 
 ```bash  
 :> data/pe_run_names
-echo "SIM_101_101_PE" >> data/pe_run_names
+echo "ZEB_101_101_PE" >> data/pe_run_names
 
 :> data/mp_run_names
-echo "SIM_150_150_MP" >> data/mp_run_names
+echo "ZEB_150_150_MP" >> data/mp_run_names
 ```
 
 Create the scripts that will map the reads to the reference.
@@ -122,14 +123,14 @@ Create the scripts that will map the reads to the reference.
 create_script_map \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --ref="  {base}/genomes/reference.fa" \
-      --reads="{base}/reads/{run}.infected_reads.{mate}.fastq" \
+      --reads="{base}/reads/{run}.{mate}.fastq" \
       --bam="  {base}/alignments/{run}" \
       --namesorted \
       --qualityfiltered \
-  > jobs/SIM_150_150_MP.map.sh
-chmod +x jobs/SIM_150_150_MP.map.sh
+  > jobs/ZEB_150_150_MP.map.sh
+chmod +x jobs/ZEB_150_150_MP.map.sh
 ```
 
 Create the scripts that will compute the average mate pair insert length signal
@@ -140,14 +141,14 @@ create_script_insert_length \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
       --namesorted \
       --chroms={base}/genomes/reference.chrom_lengths \
       --track={base}/tracks/{run}.insert_length \
       --gzip \
-  > jobs/SIM_150_150_MP.insert_length.sh
-chmod +x jobs/SIM_150_150_MP.insert_length.sh
+  > jobs/ZEB_150_150_MP.insert_length.sh
+chmod +x jobs/ZEB_150_150_MP.insert_length.sh
 ```
 
 Create the scripts that will compute the average mate pair insert length
@@ -158,14 +159,14 @@ create_script_insert_length_sparse \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --chroms={base}/genomes/reference.chrom_lengths \
       --blacklist={base}/genomes/reference.Ns.dat \
       --blacklist={base}/genomes/repeat_masker.reference.dat \
       --input={base}/tracks/{run}.insert_length.gz \
       --track={base}/tracks/{run}.insert_length.sparse \
-  > jobs/SIM_150_150_MP.insert_length_sparse.sh
-chmod +x jobs/SIM_150_150_MP.insert_length_sparse.sh
+  > jobs/ZEB_150_150_MP.insert_length_sparse.sh
+chmod +x jobs/ZEB_150_150_MP.insert_length_sparse.sh
 ```
 
 Create the scripts that will compute the normal insert coverage depth signal
@@ -177,13 +178,13 @@ create_script_insert_depth \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
       --namesorted \
       --chroms={base}/genomes/reference.chrom_lengths \
       --track={base}/tracks/{run}.{kind}_inserts.depth \
-  > jobs/SIM_150_150_MP.insert_depth.normal.sh
-chmod +x jobs/SIM_150_150_MP.insert_depth.normal.sh
+  > jobs/ZEB_150_150_MP.insert_depth.normal.sh
+chmod +x jobs/ZEB_150_150_MP.insert_depth.normal.sh
 ```
 
 Create the scripts that will compute the normal insert coverage depth
@@ -194,14 +195,14 @@ create_script_insert_depth_sparse \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --chroms={base}/genomes/reference.chrom_lengths \
       --blacklist={base}/genomes/reference.Ns.dat \
       --blacklist={base}/genomes/repeat_masker.reference.dat \
       --input={base}/tracks/{run}.{kind}_inserts.depth \
       --track={base}/tracks/{run}.{kind}_inserts.depth.sparse \
-  > jobs/SIM_150_150_MP.insert_depth_sparse.sh
-chmod +x jobs/SIM_150_150_MP.insert_depth_sparse.sh
+  > jobs/ZEB_150_150_MP.insert_depth_sparse.sh
+chmod +x jobs/ZEB_150_150_MP.insert_depth_sparse.sh
 ```
 
 Create the scripts that will compute the short insert coverage depth signal
@@ -213,13 +214,13 @@ create_script_insert_depth \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
       --namesorted \
       --chroms={base}/genomes/reference.chrom_lengths \
       --track={base}/tracks/{run}.{kind}_inserts.depth \
-  > jobs/SIM_150_150_MP.insert_depth.short.sh
-chmod +x jobs/SIM_150_150_MP.insert_depth.short.sh
+  > jobs/ZEB_150_150_MP.insert_depth.short.sh
+chmod +x jobs/ZEB_150_150_MP.insert_depth.short.sh
 ```
 
 Create the scripts that will compute the short insert coverage depth
@@ -231,12 +232,12 @@ create_script_insert_depth_dense \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --chroms={base}/genomes/reference.chrom_lengths \
       --input={base}/tracks/{run}.{kind}_inserts.depth \
       --track={base}/tracks/{run}.{kind}_inserts.depth.dense \
-  > jobs/SIM_150_150_MP.insert_depth_dense.sh
-chmod +x jobs/SIM_150_150_MP.insert_depth_dense.sh
+  > jobs/ZEB_150_150_MP.insert_depth_dense.sh
+chmod +x jobs/ZEB_150_150_MP.insert_depth_dense.sh
 ```
 
 Create the scripts that will compute the mate pair discordant mates coverage
@@ -253,12 +254,12 @@ create_script_discordant_mates_dense.py \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_150_150_MP \
+      ZEB_150_150_MP \
       --chroms={base}/genomes/reference.chrom_lengths \
       --input={base}/tracks/{run}.rmdup.bedgraph \
       --track={base}/tracks/{run}.discordant_mates.dense \
-  > jobs/SIM_150_150_MP.discordant_mates_dense.sh
-chmod +x jobs/SIM_150_150_MP.discordant_mates_dense.sh
+  > jobs/ZEB_150_150_MP.discordant_mates_dense.sh
+chmod +x jobs/ZEB_150_150_MP.discordant_mates_dense.sh
 ```
 
 Create the scripts that will compute the paired end clipped breakpoints signal
@@ -269,13 +270,13 @@ create_script_clipped_breakpoints \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_101_101_PE \
+      ZEB_101_101_PE \
       --bam={base}/alignments/{run}.ql_filtered.name_sorted.bam \
       --namesorted \
       --chroms={base}/genomes/reference.chrom_lengths \
       --track={base}/tracks/{run}.clipped_breakpoints \
-  > jobs/SIM_101_101_PE.clipped_breakpoints.sh
-chmod +x jobs/SIM_101_101_PE.clipped_breakpoints.sh
+  > jobs/ZEB_101_101_PE.clipped_breakpoints.sh
+chmod +x jobs/ZEB_101_101_PE.clipped_breakpoints.sh
 ```
 
 Create the scripts that will compute the paired end clipped breakpoints
@@ -286,28 +287,28 @@ create_script_clipped_breakpoints_high \
       --control=data/control.dat \
       --init=shebang:bash \
       --base="`pwd`" \
-      SIM_101_101_PE \
+      ZEB_101_101_PE \
       --chroms={base}/genomes/reference.chrom_lengths \
       --input={base}/tracks/{run}.clipped_breakpoints \
       --track={base}/tracks/{run}.clipped_breakpoints.high \
-  > jobs/SIM_101_101_PE.clipped_breakpoints_high.sh
-chmod +x jobs/SIM_101_101_PE.clipped_breakpoints_high.sh
+  > jobs/ZEB_101_101_PE.clipped_breakpoints_high.sh
+chmod +x jobs/ZEB_101_101_PE.clipped_breakpoints_high.sh
 ```
 
 (Bob to add the combination track stuff)
 
 One all the jobs scripts have been created, they should be run, like this:
 ```bash  
-./jobs/SIM_150_150_MP.map.sh
-./jobs/SIM_150_150_MP.insert_length.sh
-./jobs/SIM_150_150_MP.insert_length_sparse.sh
-./jobs/SIM_150_150_MP.insert_depth.normal.sh
-./jobs/SIM_150_150_MP.insert_depth_sparse.sh
-./jobs/SIM_150_150_MP.insert_depth.short.sh
-./jobs/SIM_150_150_MP.insert_depth_dense.sh
-./jobs/SIM_150_150_MP.discordant_mates_dense.sh
-./jobs/SIM_101_101_PE.clipped_breakpoints.sh
-./jobs/SIM_101_101_PE.clipped_breakpoints_high.sh
+./jobs/ZEB_150_150_MP.map.sh
+./jobs/ZEB_150_150_MP.insert_length.sh
+./jobs/ZEB_150_150_MP.insert_length_sparse.sh
+./jobs/ZEB_150_150_MP.insert_depth.normal.sh
+./jobs/ZEB_150_150_MP.insert_depth_sparse.sh
+./jobs/ZEB_150_150_MP.insert_depth.short.sh
+./jobs/ZEB_150_150_MP.insert_depth_dense.sh
+./jobs/ZEB_150_150_MP.discordant_mates_dense.sh
+./jobs/ZEB_101_101_PE.clipped_breakpoints.sh
+./jobs/ZEB_101_101_PE.clipped_breakpoints_high.sh
 ```
 
 
