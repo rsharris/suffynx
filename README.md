@@ -124,8 +124,7 @@ create_script_map \
 chmod +x jobs/ZEB_150_150_MP.map.sh
 ```
 
-## Create the scripts that will compute the average mate pair insert length signal
-and indicator tracks.
+## Create the scripts that will compute the average mate pair insert length signal and indicator tracks.
 
 This is called "Track 1" in supplementary methods step 2.
 
@@ -159,9 +158,9 @@ create_script_insert_length_sparse \
 chmod +x jobs/ZEB_150_150_MP.insert_length_sparse.sh
 ```
 
-Create the scripts that will compute the mate pair short and normal insert
-coverage depth signal and indicator tracks. These are called "Tracks 2 and 3"
-in supplementary methods step 3.
+## Create the scripts that will compute the mate pair short and normal insert coverage depth signal and indicator tracks.
+
+These are called "Tracks 2 and 3" in supplementary methods step 3.
 
 ```bash  
 create_script_insert_depth \
@@ -222,9 +221,9 @@ create_script_insert_depth_sparse \
 chmod +x jobs/ZEB_150_150_MP.insert_depth_sparse.sh
 ```
 
-Create the scripts that will compute the mate pair discordant mates coverage
-depth signal and indicator tracks. This is called "Track 4" in supplementary
-methods step 4.
+## Create the scripts that will compute the mate pair discordant mates coverage depth signal and indicator tracks.
+
+This is called "Track 4" in supplementary methods step 4.
 
 See https://github.com/rsharris/suffynx/tree/master/discordant_mates for
 creation of the signal track.
@@ -243,8 +242,9 @@ create_script_discordant_mates_dense \
 chmod +x jobs/ZEB_150_150_MP.discordant_mates_dense.sh
 ```
 
-Create the scripts that will compute the paired end clipped breakpoints signal
-and indicator tracks. This is called "Track 5" in supplementary methods step 5.
+## Create the scripts that will compute the paired end clipped breakpoints signal and indicator tracks.
+
+This is called "Track 5" in supplementary methods step 5.
 
 ```bash  
 create_script_clipped_breakpoints \
@@ -273,8 +273,9 @@ create_script_clipped_breakpoints_high \
 chmod +x jobs/ZEB_101_101_PE.clipped_breakpoints_high.sh
 ```
 
-Create the scripts that will combine tracks 1 thru 5 and call insertions, per
-supplementary methods step 6.
+## Create the scripts that will combine tracks 1 thru 5 and call insertions.
+
+As per supplementary methods step 6.
 
 ```bash  
 create_script_insert_length_sparse_or_normal_inserts_sparse \
