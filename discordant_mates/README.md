@@ -1,4 +1,4 @@
-# discordant mates coverage depth signal track
+# discordant mates coverage depth signal track. Dependency: perl, samtools, bedtools
 
 (Lei working on this)
 
