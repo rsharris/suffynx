@@ -59,7 +59,7 @@ produce a track named tracks/ZEB_150_150_MP.rmdup.bedgraph
           > farf.${run}.${which}.name_sorted.MQ40.CP40.MSQF.fq
         done
 
-(4a) Convert back to bed format, of the anchoring mate:
+(4a) Find the location of the trimmed anchoring mates. First generate a temporary sam using the mapping infor in the original bam file and the trimmed sequence in the fq file.
     for which in distant broken bichromosomal ; do
         time (cat farf.${run}.${which}.name_sorted.MQ40.CP40.MSQF.fq;
               samtools view alignments/${run}.${which}.name_sorted.bam) \
@@ -78,13 +78,15 @@ produce a track named tracks/ZEB_150_150_MP.rmdup.bedgraph
           > farf.${run}.${which}.mate.sam.temp
         done
 
-(4b)
+(4b) Remove duplicates, and then convert back to bed format.
     today=`today {dd}{mmm}{yyyy}`
     for which in distant broken bichromosomal ; do
         time \
           (samtools view -h alignments/${run}.${which}.name_sorted.bam | grep ^@;
            cat farf.${run}.${which}.mate.sam.temp) \
-          | samtools view -Sbh - \
+          > farf.${run}.${which}.mate.bam
+          samtools rmdup -S farf.${run}.${which}.mate.bam farf.${run}.${which}.mate.rmdup.bam
+          | samtools view -Sbh farf.${run}.${which}.mate.rmdup.bam \
           | bedtools bamtobed -cigar -i - \
           > tracks/${run}.${which}.name_sorted.MQ40.CP40.MSQF.${today}.bed
         done
