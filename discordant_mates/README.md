@@ -5,7 +5,7 @@ Dependency: perl, samtools, bedtools, seqtk.
 (1) Filter alignments:
 
 ```bash  
-time samtools view -h alignments/ZEB_MP.name_sorted.bam \
+samtools view -h alignments/ZEB_MP.name_sorted.bam \
   | filtered_sam_to_intervals --namesorted \
       --requiremates \
       --prohibit:"(CIGAR == *)" \
@@ -16,7 +16,7 @@ time samtools view -h alignments/ZEB_MP.name_sorted.bam \
   | samtools view -bS - \
   > alignments/ZEB_MP.bichromosomal.name_sorted.bam
 
-time samtools view -h alignments/ZEB_MP.name_sorted.bam \
+samtools view -h alignments/ZEB_MP.name_sorted.bam \
   | filtered_sam_to_intervals --namesorted \
       --requiremates \
       --require:"broken mates with unmapped" \
@@ -25,7 +25,7 @@ time samtools view -h alignments/ZEB_MP.name_sorted.bam \
   | samtools view -bS - \
   > alignments/ZEB_MP.broken.name_sorted.bam
 
-time samtools view -h alignments/ZEB_MP.name_sorted.bam \
+samtools view -h alignments/ZEB_MP.name_sorted.bam \
   | filtered_sam_to_intervals --namesorted \
       --requiremates=${minInsert}.. \
       --prohibit:"(CIGAR == *)" \
