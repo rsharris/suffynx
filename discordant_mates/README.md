@@ -12,7 +12,6 @@ samtools view -h alignments/ZEB_MP.name_sorted.bam \
       --prohibit:"(RNEXT == =)" \
       --require:" (FLAGS & 0xF00 == 0)" \
       --justsamrecords \
-      --progress=2M \
   | samtools view -bS - \
   > alignments/ZEB_MP.bichromosomal.name_sorted.bam
 
@@ -21,18 +20,16 @@ samtools view -h alignments/ZEB_MP.name_sorted.bam \
       --requiremates \
       --require:"broken mates with unmapped" \
       --justsamrecords \
-      --progress=2M \
   | samtools view -bS - \
   > alignments/ZEB_MP.broken.name_sorted.bam
 
 samtools view -h alignments/ZEB_MP.name_sorted.bam \
   | filtered_sam_to_intervals --namesorted \
-      --requiremates=${minInsert}.. \
+      --requiremates=30K.. \
       --prohibit:"(CIGAR == *)" \
       --require:" (RNEXT == =)" \
       --require:" (FLAGS & 0xF00 == 0)" \
       --justsamrecords \
-      --progress=2M \
   | samtools view -bS - \
   > alignments/ZEB_MP.distant.name_sorted.bam
 ```
@@ -66,7 +63,7 @@ for disctype in broken bichromosomal distant ; do
 ```bash  
 for disctype in broken bichromosomal distant ; do
     (cat temp.ZEB_MP.${disctype}.name_sorted.MQ40.CP40.bed;
-          samtools view alignments/ZEB_MP.${disctype}.name_sorted.bam) \
+     samtools view alignments/ZEB_MP.${disctype}.name_sorted.bam) \
       | perl -lane \
         'unless ($F[9])
            {
@@ -107,7 +104,7 @@ sequence in the fq file.
 ```bash  
 for disctype in broken bichromosomal distant ; do
     (cat temp.ZEB_MP.${disctype}.name_sorted.MQ40.CP40.MSQF.fq;
-          samtools view alignments/ZEB_MP.${disctype}.name_sorted.bam) \
+     samtools view alignments/ZEB_MP.${disctype}.name_sorted.bam) \
       | perl -lane \
         'unless ($F[9])
            {
@@ -120,7 +117,7 @@ for disctype in broken bichromosomal distant ; do
            $p=2 if $F[1] & 128;
            print if $N{$F[0]} and $N{$F[0]} ne $p
            }' \
-      > temp.ZEB_MP.${disctype}.mate.sam.temp
+      > temp.ZEB_MP.${disctype}.mate.sam
     done
 ```
 
@@ -129,9 +126,9 @@ for disctype in broken bichromosomal distant ; do
 ```bash  
 for disctype in broken bichromosomal distant ; do
     (samtools view -h alignments/ZEB_MP.${disctype}.name_sorted.bam | grep ^@;
-       cat temp.ZEB_MP.${disctype}.mate.sam.temp) \
+     cat temp.ZEB_MP.${disctype}.mate.sam) \
       > temp.ZEB_MP.${disctype}.mate.bam
-      samtools rmdup \
+    samtools rmdup \
         -S temp.ZEB_MP.${disctype}.mate.bam \
         temp.ZEB_MP.${disctype}.mate.rmdup.bam
       | samtools view -Sbh temp.ZEB_MP.${disctype}.mate.rmdup.bam \
@@ -159,14 +156,11 @@ echo "track type=bedGraph name=~${trackName}~ description=~${trackName}~" \
   > tracks/ZEB_MP.BDB.MQ40.CP40.MSQF.bedgraph
 
 (cat tracks/ZEB_MP.broken.name_sorted.MQ40.CP40.MSQF.bed;
-      cat tracks/ZEB_MP.distant.name_sorted.MQ40.CP40.MSQF.bed;
-      cat tracks/ZEB_MP.bichromosomal.name_sorted.MQ40.CP40.MSQF.bed) \
+ cat tracks/ZEB_MP.distant.name_sorted.MQ40.CP40.MSQF.bed;
+ cat tracks/ZEB_MP.bichromosomal.name_sorted.MQ40.CP40.MSQF.bed) \
   | bedtools sort -i - \
   | bedtools genomecov -bg -g hg19.chrlen.txt -i - \
   >> tracks/ZEB_MP.BDB.MQ40.CP40.MSQF.bedgraph
-
-ln -s        ZEB_MP.BDB.MQ40.CP40.MSQF.bedgraph \
-      tracks/ZEB_MP.BDB.MQ40.CP40.MSQF.dat
 ```
 
 (8) duplicate removal with samtools
