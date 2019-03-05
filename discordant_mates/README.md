@@ -2,7 +2,42 @@
 
 Dependency: perl, samtools, bedtools, seqtk.
 
-(1) Get the >=40 MAPQ and >=40% mapped (anchoring):
+(1) Filter alignments:
+
+```bash  
+time samtools view -h alignments/ZEB_MP.name_sorted.bam \
+  | filtered_sam_to_intervals --namesorted \
+      --requiremates \
+      --prohibit:"(CIGAR == *)" \
+      --prohibit:"(RNEXT == =)" \
+      --require:" (FLAGS & 0xF00 == 0)" \
+      --justsamrecords \
+      --progress=2M \
+  | samtools view -bS - \
+  > alignments/ZEB_MP.bichromosomal.name_sorted.bam
+
+time samtools view -h alignments/ZEB_MP.name_sorted.bam \
+  | filtered_sam_to_intervals --namesorted \
+      --requiremates \
+      --require:"broken mates with unmapped" \
+      --justsamrecords \
+      --progress=2M \
+  | samtools view -bS - \
+  > alignments/ZEB_MP.broken.name_sorted.bam
+
+time samtools view -h alignments/ZEB_MP.name_sorted.bam \
+  | filtered_sam_to_intervals --namesorted \
+      --requiremates=${minInsert}.. \
+      --prohibit:"(CIGAR == *)" \
+      --require:" (RNEXT == =)" \
+      --require:" (FLAGS & 0xF00 == 0)" \
+      --justsamrecords \
+      --progress=2M \
+  | samtools view -bS - \
+  > alignments/ZEB_MP.distant.name_sorted.bam
+```
+
+(2) Get the >=40 MAPQ and >=40% mapped (anchoring):
 
 ```bash  
 for disctype in broken bichromosomal distant ; do
@@ -26,7 +61,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(2) Extract their unmapped mates and apply the BBB and ### filter:
+(3) Extract their unmapped mates and apply the BBB and ### filter:
 
 ```bash  
 for disctype in broken bichromosomal distant ; do
@@ -55,7 +90,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(3) Q20 trim, BBB and ### trim and get rid of the short ones:
+(4) Q20 trim, BBB and ### trim and get rid of the short ones:
 
 ```bash  
 for disctype in broken bichromosomal distant ; do
@@ -65,7 +100,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(4a) Find the location of the trimmed anchoring mates. First generate a
+(5a) Find the location of the trimmed anchoring mates. First generate a
 temporary sam using the mapping info in the original bam file and the trimmed
 sequence in the fq file.
 
@@ -89,7 +124,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(4b) Remove duplicates, and then convert back to bed format.
+(5b) Remove duplicates, and then convert back to bed format.
 
 ```bash  
 for disctype in broken bichromosomal distant ; do
@@ -105,7 +140,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(5) sort and convert to bedgraph:
+(6) sort and convert to bedgraph:
 
 ```bash  
 for disctype in broken bichromosomal distant ; do
@@ -115,7 +150,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(6) combine them
+(7) combine them
 
 ```bash  
 trackName="ZEB_MP BDB MAPQ40 CLIP40 NoBBBPPP"
@@ -134,7 +169,7 @@ ln -s        ZEB_MP.BDB.MQ40.CP40.MSQF.bedgraph \
       tracks/ZEB_MP.BDB.MQ40.CP40.MSQF.dat
 ```
 
-(7) duplicate removal with samtools
+(8) duplicate removal with samtools
 
 ```bash  
 for disctype in broken bichromosomal distant ; do
@@ -143,7 +178,7 @@ for disctype in broken bichromosomal distant ; do
     done
 ```
 
-(8) conversion to bedgraph
+(9) conversion to bedgraph
 
 ```bash  
 for disctype in broken bichromosomal distant; do \
