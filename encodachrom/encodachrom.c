@@ -80,7 +80,7 @@
 //----------
 
 int main (int argc, char** argv);
-static void ProcessFile (char* fName, FILE* f);
+static void ProcessFile (FILE* f);
 static char* skip_whitespace (const char* s);
 static int strncmplax (const char* s1, const char* s2, size_t n);
 static unsigned long get_line(char **linep, unsigned long *np, FILE *fp);
@@ -117,7 +117,7 @@ int main
 		usage ();
 
 	if (argc == 1)	
-		ProcessFile (NULL, stdin);
+		ProcessFile (stdin);
 	else
 		{
 		for (argn=1 ; argn<argc ; argn++)
@@ -128,7 +128,7 @@ int main
 		    	fprintf (stderr, "Can't open \"%s\"\n", argv[argn]);
 		    	return 0;
 		    	}
-			ProcessFile (argv[argn], f);
+			ProcessFile (f);
 			fclose (f);
 		    }
 	    }
@@ -145,8 +145,7 @@ int main
 //----------
 
 static void ProcessFile
-   (char*	fName,
-	FILE*	f)
+   (FILE*	f)
 	{
 	char*			buffer    = NULL;
 	unsigned long	bufferLen = 0;
