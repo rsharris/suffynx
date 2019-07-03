@@ -17,9 +17,6 @@
 //
 //----------
 
-static const char rcsid[]=
-"";
-
 //----------
 //
 // other files--
